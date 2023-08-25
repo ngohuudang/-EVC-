@@ -84,12 +84,7 @@ try:
         is_conda = True
 except:
     is_conda = False
-is_conda = False
-if result.returncode == 0:
-    python_env_path = sys.prefix.replace('\\', '/')
-    conda_env = python_env_path.split('/')[-1]
-    is_conda = True
-
+    
 config = Config()
 
 def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
