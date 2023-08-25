@@ -29,7 +29,11 @@ def load_audio(file, sr):
     return np.frombuffer(out, np.float32).flatten()
 
 def split_vocal_from_file(file, sr = 44100):
-    audioYT = load_audio(file, sr)
+    audioYT,_ = stempeg.read_stems(
+        file, 
+        sample_rate=sr,
+        dtype=np.float32
+    )
     estimates = predict.separate(
         torch.as_tensor(audioYT).float(),
         rate=sr,
@@ -72,7 +76,7 @@ def check_silence(audio, len_orginal_audio = 120000):
     result_audio.export("remove_silent/%s" % fileName, format="wav")
     return "Success! new file at remove_silent/%s" % fileName
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # split_vocal()
     # print(os.environ.get('CONDA_DEFAULT_ENV'))
-    # check_silence("dataset/dang1.mp3")
+    check_silence("dataset/dang1.mp3")

@@ -49,3 +49,5 @@ mega.py
 gdown
 gTTS
 elevenlabs
+openunmix
+stempeg

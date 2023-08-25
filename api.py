@@ -84,7 +84,7 @@ try:
         is_conda = True
 except:
     is_conda = False
-    
+
 config = Config()
 
 def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
@@ -630,6 +630,7 @@ def save_file_audio(input_audio, output_path= "upload_audio"):
 upload_parser_train = api.parser()
 upload_parser_train.add_argument('audio', location='files', type=FileStorage, required=True)
 upload_parser_train.add_argument('export_dir', type=str, required=True, help='Name of the directory to export the model to', default='my-voice')
+
 @api.route('/train') 
 class TrainEVC(Resource):
     @api.expect(upload_parser_train)
@@ -642,6 +643,10 @@ class TrainEVC(Resource):
         # if os.path.exists("logs/%s" % export_dir):
         #     shutil.rmtree('logs/%s/' % export_dir)
         #     os.makedirs("logs/%s" % export_dir)
+        if os.path.exists("audio_train"):
+            shutil.rmtree('audio_train')
+        os.makedirs("audio_train", exist_ok=True)
+        save_file_audio(audio, output_path="audio_train")
         n_process = 4
         sr_dict = {
             "32k": 32000,
@@ -658,7 +663,7 @@ class TrainEVC(Resource):
             shutil.rmtree('processed_dataset')
             os.makedirs("processed_dataset")
 
-        split_vocal_from_file(audio.filename)
+        split_vocal_from_file("audio_train/" + audio.filename)
 
         preprocess_dataset(
             trainset_dir="processed_dataset",

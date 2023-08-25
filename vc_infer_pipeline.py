@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torchcrepe # Fork feature. Use the crepe f0 algorithm. New dependency (pip install torchcrepe)
 from torch import Tensor
 import scipy.signal as signal
-import pyworld, os, traceback, faiss, librosa, torchcrepe
+import pyworld, os, traceback, faiss, librosa
 from scipy import signal
 from functools import lru_cache
 
@@ -343,7 +343,7 @@ class VC(object):
         ) + 1
         f0_mel[f0_mel <= 1] = 1
         f0_mel[f0_mel > 255] = 255
-        f0_coarse = np.rint(f0_mel).astype(np.int)
+        f0_coarse = np.rint(f0_mel).astype(np.int64)
 
         return f0_coarse, f0bak  # 1-0
 

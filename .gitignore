@@ -4,3 +4,16 @@ __pycache__
 *.pyd
 hubert_base.pt
 /logs
+rmvpe.pt
+/pretrained_v2
+/weights
+/audio-outputs
+/audio-train
+/audios
+/upload_audio
+/remove_silent
+/dataset
+/model
+/processed_dataset
+/audio_train
+test.ipynb

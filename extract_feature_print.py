@@ -3,6 +3,7 @@ import os, sys, traceback
 # device=sys.argv[1]
 n_part = int(sys.argv[2])
 i_part = int(sys.argv[3])
+
 if len(sys.argv) == 5:
     exp_dir = sys.argv[4]
     version = sys.argv[5]
@@ -26,16 +27,15 @@ elif torch.backends.mps.is_available():
 else:
     device = "cpu"
 
+# os.environ["CUDA_VISIBLE_DEVICES"] = str(i_gpu)
 f = open("%s/extract_f0_feature.log" % exp_dir, "a+")
-
 
 def printt(strr):
     print(strr)
     f.write("%s\n" % strr)
     f.flush()
 
-
-printt(sys.argv)
+# printt(sys.argv)
 model_path = "hubert_base.pt"
 
 printt(exp_dir)
@@ -77,9 +77,10 @@ models, saved_cfg, task = checkpoint_utils.load_model_ensemble_and_task(
 model = models[0]
 model = model.to(device)
 printt("move model to %s" % device)
-if device not in ["mps", "cpu"]:
-    model = model.half()
+# if device not in ["mps", "cpu"]:
+#     model = model.half()
 model.eval()
+
 
 todo = sorted(list(os.listdir(wavPath)))[i_part::n_part]
 n = max(1, len(todo) // 10)  # 最多打印十条
@@ -99,9 +100,7 @@ else:
                 feats = readwave(wav_path, normalize=saved_cfg.task.normalize)
                 padding_mask = torch.BoolTensor(feats.shape).fill_(False)
                 inputs = {
-                    "source": feats.half().to(device)
-                    if device not in ["mps", "cpu"]
-                    else feats.to(device),
+                    "source": feats.to(device),
                     "padding_mask": padding_mask.to(device),
                     "output_layer": 9 if version == "v1" else 12,  # layer 9
                 }
@@ -121,3 +120,4 @@ else:
         except:
             printt(traceback.format_exc())
     printt("all-feature-done")
+f.close()

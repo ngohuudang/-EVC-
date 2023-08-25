@@ -94,20 +94,36 @@ class Config:
         return x_pad, x_query, x_center, x_max
 
 
-f0up_key = sys.argv[1]
-input_path = sys.argv[2]
-index_path = sys.argv[3]
-f0method = sys.argv[4]  # harvest or pm
-opt_path = sys.argv[5]
-model_path = sys.argv[6]
-index_rate = float(sys.argv[7])
-device = sys.argv[8]
-is_half = bool(sys.argv[9])
-filter_radius = int(sys.argv[10])
-resample_sr = int(sys.argv[11])
-rms_mix_rate = float(sys.argv[12])
-protect = float(sys.argv[13])
-print(sys.argv)
+# f0up_key = sys.argv[1]
+# input_path = sys.argv[2]
+# index_path = sys.argv[3]
+# # f0method = sys.argv[4]  # harvest or pm
+# f0method = "harvest"
+# opt_path = sys.argv[5]
+# model_path = sys.argv[6]
+# index_rate = float(sys.argv[7])
+# # device = sys.argv[8]
+# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# is_half = bool(sys.argv[9])
+# filter_radius = int(sys.argv[10])
+# resample_sr = int(sys.argv[11])
+# rms_mix_rate = float(sys.argv[12])
+# protect = float(sys.argv[13])
+
+f0up_key = -12 # -12 is convert female to male, 12 is convert male to female
+input_path = "audios"
+index_path = "logs/my-voice-5/added_IVF316_Flat_nprobe_1_My-Voice-5_v2.index"
+f0method = "harvest"
+opt_path = "audio-outputs/My-Voice-5/"
+model_path = "weights/My-Voice-5.pth"
+index_rate = 0.66
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+is_half = False
+filter_radius = 3
+resample_sr = 0
+rms_mix_rate = 0.66 #Use the volume envelope of the input to replace or mix with the volume envelope of the output. The closer the ratio is to 1, the more the output envelope is used
+protect = 0.33
+# print(sys.argv)
 config = Config(device, is_half)
 now_dir = os.getcwd()
 sys.path.append(now_dir)
@@ -169,6 +185,7 @@ def vc_single(sid, input_audio, f0_up_key, f0_file, f0_method, file_index, index
         rms_mix_rate,
         version,
         protect,
+        crepe_hop_length=128,
         f0_file=f0_file,
     )
     print(times)
@@ -206,12 +223,19 @@ def get_vc(model_path):
 
 
 get_vc(model_path)
-audios = os.listdir(input_path)
-for file in tq.tqdm(audios):
-    if file.endswith(".wav"):
-        file_path = input_path + "/" + file
-        wav_opt = vc_single(
-            0, file_path, f0up_key, None, f0method, index_path, index_rate
-        )
-        out_path = opt_path + "/" + file
-        wavfile.write(out_path, tgt_sr, wav_opt)
+# audios = os.listdir(input_path)
+# for file in tq.tqdm(audios):
+#     if file.endswith(".wav"):
+#         file_path = input_path + "/" + file
+#         wav_opt = vc_single(
+#             0, file_path, f0up_key, None, f0method, index_path, index_rate
+#         )
+#         out_path = opt_path + "/" + file
+#         wavfile.write(out_path, tgt_sr, wav_opt)
+file = "somegirl.mp3"
+file_path = input_path + "/" + file
+wav_opt = vc_single(
+    0, file_path, f0up_key, None, f0method, index_path, index_rate
+)
+out_path = opt_path + "/" + file
+wavfile.write(out_path, tgt_sr, wav_opt)
