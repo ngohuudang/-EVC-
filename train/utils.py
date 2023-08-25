@@ -150,6 +150,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path)
             "iteration": iteration,
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
+            "_use_new_zipfile_serialization": False,
         },
         checkpoint_path,
     )
@@ -176,6 +177,7 @@ def save_checkpoint_d(combd, sbd, optimizer, learning_rate, iteration, checkpoin
             "iteration": iteration,
             "optimizer": optimizer.state_dict(),
             "learning_rate": learning_rate,
+            "_use_new_zipfile_serialization": False,
         },
         checkpoint_path,
     )
