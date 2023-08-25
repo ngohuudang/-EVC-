@@ -75,7 +75,15 @@ if (torch.cuda.is_available()) and ngpu > 0:
 
 gpus = "-".join([i[0] for i in gpu_infos])
 
-result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
+try:
+    result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
+    is_conda = False
+    if result.returncode == 0:
+        python_env_path = sys.prefix.replace('\\', '/')
+        conda_env = python_env_path.split('/')[-1]
+        is_conda = True
+except:
+    is_conda = False
 is_conda = False
 if result.returncode == 0:
     python_env_path = sys.prefix.replace('\\', '/')
