@@ -84,15 +84,15 @@ try:
         is_conda = True
 except:
     is_conda = False
-
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
 config = Config()
-
+python_cmd = config.python_cmd
 def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
     os.makedirs("%s/logs/%s" % (now_dir, exp_dir), exist_ok=True)
     f = open("%s/logs/%s/preprocess.log" % (now_dir, exp_dir), "w")
     f.close()
     if is_conda:
-        command = [config.python_cmd, 
+        command = [python_cmd, 
                     'trainset_preprocess_pipeline_print.py', 
                     trainset_dir, str(sr), str(n_p), 
                     '%s/logs/%s' % (now_dir, exp_dir), str(config.noparallel)]
@@ -113,7 +113,7 @@ def preprocess_dataset(trainset_dir, exp_dir, sr, n_p):
             print(f"Command failed with return code: {p.returncode}")
     else:
         cmd = (
-            config.python_cmd
+            python_cmd
             + " trainset_preprocess_pipeline_print.py %s %s %s %s/logs/%s "
             % (trainset_dir, sr, n_p, now_dir, exp_dir)
             + str(config.noparallel)
@@ -129,7 +129,7 @@ def extract_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
     f.close()
     if if_f0:
         if is_conda:
-            command = [config.python_cmd, 'extract_f0_print.py', 
+            command = [python_cmd, 'extract_f0_print.py', 
                        '%s/logs/%s' % (now_dir, exp_dir), str(n_p), f0method, str(echl)]
 
             p = subprocess.Popen(
@@ -151,7 +151,7 @@ def extract_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
             else:
                 print(f"Command failed with return code: {p.returncode}")
         else:
-            cmd = config.python_cmd + " extract_f0_print.py %s/logs/%s %s %s %s" % (
+            cmd = python_cmd + " extract_f0_print.py %s/logs/%s %s %s %s" % (
                 now_dir,
                 exp_dir,
                 n_p,
@@ -167,7 +167,7 @@ def extract_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
     ps = []
     if is_conda:
         for idx, n_g in enumerate(gpus):
-            command = [config.python_cmd, 'extract_feature_print.py', 
+            command = [python_cmd, 'extract_feature_print.py', 
                        config.device, str(leng), str(idx), str(n_g),
                        '%s/logs/%s' % (now_dir, exp_dir), version19]
 
@@ -192,7 +192,7 @@ def extract_feature(gpus, n_p, f0method, if_f0, exp_dir, version19, echl):
     else:
         for idx, n_g in enumerate(gpus):
             cmd = (
-                config.python_cmd
+                python_cmd
                 + " extract_feature_print.py %s %s %s %s %s/logs/%s %s"
                 % (
                     config.device,
@@ -310,7 +310,7 @@ def train(
         print("no pretrained Discriminator")
     if is_conda:
         if gpus16:
-            command = [config.python_cmd, 'train_nsf_sim_cache_sid_load_pretrain.py',
+            command = [python_cmd, 'train_nsf_sim_cache_sid_load_pretrain.py',
                        '-e', exp_dir1, 
                        '-sr', sr2, 
                        '-f0', '1' if if_f0_3 else '0', 
@@ -326,7 +326,7 @@ def train(
                        '-v', version19
             ]
         else:
-            command = [config.python_cmd, 'train_nsf_sim_cache_sid_load_pretrain.py',
+            command = [python_cmd, 'train_nsf_sim_cache_sid_load_pretrain.py',
                        '-e', exp_dir1, 
                        '-sr', sr2, 
                        '-f0', '1' if if_f0_3 else '0', 
@@ -360,7 +360,7 @@ def train(
     else:
         if gpus16:
             cmd = (
-                config.python_cmd
+                python_cmd
                 + " train_nsf_sim_cache_sid_load_pretrain.py -e %s -sr %s -f0 %s -bs %s -g %s -te %s -se %s %s %s -l %s -c %s -sw %s -v %s"
                 % (
                     exp_dir1,
@@ -380,7 +380,7 @@ def train(
             )
         else:
             cmd = (
-                config.python_cmd
+                python_cmd
                 + " train_nsf_sim_cache_sid_load_pretrain.py -e %s -sr %s -f0 %s -bs %s -te %s -se %s %s %s -l %s -c %s -sw %s -v %s"
                 % (
                     exp_dir1,
