@@ -76,12 +76,16 @@ else:
     default_batch_size = 1
 gpus = "-".join([i[0] for i in gpu_infos])
 
-result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
 is_conda = False
-if result.returncode == 0:
-    python_env_path = sys.prefix.replace('\\', '/')
-    conda_env = python_env_path.split('/')[-1]
-    is_conda = True
+try:
+    result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
+    if result.returncode == 0:
+        python_env_path = sys.prefix.replace('\\', '/')
+        conda_env = python_env_path.split('/')[-1]
+        is_conda = True
+except:
+    pass
+
 
 from infer_pack.models import (SynthesizerTrnMs256NSFsid,SynthesizerTrnMs256NSFsid_nono,SynthesizerTrnMs768NSFsid,SynthesizerTrnMs768NSFsid_nono)
 

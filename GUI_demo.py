@@ -2111,7 +2111,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         input_audio_mic.change(fn=save_to_wav, inputs=[input_audio_mic], outputs=[input_audio0])
                         input_audio_mic.change(fn=change_choices2, inputs=[], outputs=[input_audio0])
                     with gr.Row():
-                        with gr.Accordion('Text To Speech', open=False):
+                        with gr.Accordion('Text To Speech', open=False, visible=False):
                             with gr.Column():
                                 lang = gr.Radio(label='Chinese & Japanese do not work with ElevenLabs currently.',choices=['en','es','fr','pt','zh-CN','de','hi','ja'], value='en')
                                 api_box = gr.Textbox(label="Enter your API Key for ElevenLabs, or leave empty to use GoogleTTS", value='')
@@ -2121,7 +2121,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                                 tts_button = gr.Button(value="Speak")
                                 tts_button.click(fn=elevenTTS, inputs=[api_box,tfs, elevenid, lang], outputs=[input_audio_mic, input_audio0])
                     with gr.Row():
-                        with gr.Accordion('Wav2Lip', open=False):
+                        with gr.Accordion('Wav2Lip', open=False, visible=False):
                             with gr.Row():
                                 size = gr.Radio(label='Resolution:',choices=['Half','Full'])
                                 face = gr.UploadButton("Upload A Character",type='file')
@@ -2136,7 +2136,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                                 animate_button = gr.Button('Animate')
 
                 with gr.Column():
-                    with gr.Accordion("Index Settings", open=False):
+                    with gr.Accordion("Index Settings", open=False, visible=False):
                         file_index1 = gr.Dropdown(
                             label="3. Path to your added.index file (if it didn't automatically find it.)",
                             choices=get_indexes(),
@@ -2208,7 +2208,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                             step=0.01,
                             interactive=True,
                             )
-                    with gr.Accordion("Fast-Mode (TESTING)", open=False):
+                    with gr.Accordion("Fast-Mode (TESTING)", open=False, visible=False):
                         fast_audio = gr.Audio(label="As soon as you stop recording, inference will start.",type="filepath", source="microphone", autoplay=False)
                         fast_result = gr.Audio(label="Result",type="filepath", autoplay=True)
                         
