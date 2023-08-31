@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 torch.manual_seed(114514)
 from i18n import I18nAuto
 import ffmpeg
-
+from vinorm import TTSnorm
 i18n = I18nAuto()
 
 ngpu = torch.cuda.device_count()
@@ -74,12 +74,15 @@ else:
     default_batch_size = 1
 gpus = "-".join([i[0] for i in gpu_infos])
 
-result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
 is_conda = False
-if result.returncode == 0:
-    python_env_path = sys.prefix.replace('\\', '/')
-    conda_env = python_env_path.split('/')[-1]
-    is_conda = True
+try:
+    result = subprocess.run(['conda', 'info', '--json'], capture_output=True, text=True)
+    if result.returncode == 0:
+        python_env_path = sys.prefix.replace('\\', '/')
+        conda_env = python_env_path.split('/')[-1]
+        is_conda = True
+except:
+    pass
 
 from infer_pack.models import (SynthesizerTrnMs256NSFsid,SynthesizerTrnMs256NSFsid_nono,SynthesizerTrnMs768NSFsid,SynthesizerTrnMs768NSFsid_nono)
 
@@ -146,9 +149,27 @@ def vc_single(
     rms_mix_rate,
     protect,
     crepe_hop_length,
+    source_file,
+    input_text_demo,
     root_location='./audios'
 ):  # spk_item, input_audio0, vc_transform0,f0_file,f0method0
     global tgt_sr, net_g, vc, hubert_model, version
+    if source_file == "text":
+        # S=TTSnorm(input_text_demo)
+        # if is_conda:
+        #     pass
+        # else:
+        #     cmd = (
+        #     config.python_cmd
+        #     + " -m vietTTS.vietTTS.synthesizer --lexicon-file assets/infore/lexicon.txt --text=%s --output=%s --silence-duration %f"
+        #     % (S, "clip.wav", 0.1)
+        # )
+        # print(cmd)
+        # p = Popen(cmd, shell=True)
+        # p.wait()
+        # input_audio_path = "clip.wav"
+        input_audio_path = "someguy.mp3"
+
     if input_audio_path is None:
         gr.Warning("You need to provide the path to an audio file")
         return "You need to provide the path to an audio file", None
@@ -237,6 +258,8 @@ def vc_multi(
     protect,
     format1,
     crepe_hop_length,
+    source_file,
+    input_text_demo
 ):
     try:
         dir_path = (
@@ -268,7 +291,9 @@ def vc_multi(
                 resample_sr,
                 rms_mix_rate,
                 protect,
-                crepe_hop_length
+                crepe_hop_length,
+                source_file,
+                input_text_demo
             )
             if "Success" in info:
                 try:
@@ -1804,7 +1829,7 @@ def save_to_wav(record_button):
         return os.path.basename(new_path)
     
 def save_to_wav2(dropbox):
-    file_path=dropbox.name
+    file_path=dropbox[0].name
     shutil.move(file_path,'./audios')
     return os.path.basename(file_path)
     
@@ -2080,7 +2105,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         visible=False,
                     )
                     easy_uploader = gr.Files(label='Drop your audio here & hit the Reload button.',file_types=['audio'])
-                    input_text = gr.Textbox(label="Input text", interactive=True, visible=False)
+                    input_text_demo = gr.Textbox(label="Input text", interactive=True, visible=False)
                     
                 info1 = gr.Textbox(label="Status upload audio:", value="")
                 # easy_uploader.upload(fn=upload_to_dataset, inputs=[easy_uploader], outputs=[info1])
@@ -2091,7 +2116,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                 outputs=[
                     input_audio_mic,
                     easy_uploader,
-                    input_text,
+                    input_text_demo,
                 ],
                 queue=False,
                 api_name=False,
@@ -2161,7 +2186,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                             )
                     vc_output2 = gr.Audio(label="Output Audio (Click on the Three Dots in the Right Corner to Download)",type='filepath')
                     animate_button.click(fn=mouth, inputs=[size, face, vc_output2, faces], outputs=[animation, preview])
-                    with gr.Accordion("Advanced Settings", open=False):
+                    with gr.Accordion("Advanced Settings", open=False, visible=False):
                         f0method0 = gr.Radio(
                             label="Optional: Change the Pitch Extraction Method.",
                             choices=["pm", "rmvpe", "dio", "mangio-crepe-tiny", "crepe-tiny", "crepe", "mangio-crepe", "harvest"], # Fork Feature. Add Crepe-Tiny
@@ -2252,7 +2277,9 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         resample_sr0,
                         rms_mix_rate0,
                         protect0,
-                        crepe_hop_length
+                        crepe_hop_length,
+                        source_file,
+                        input_text_demo,
                     ],
                     [vc_output1, vc_output2],
                 )
@@ -2260,7 +2287,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
         with gr.TabItem("Train", visible=False):
             with open("text_sample.txt",'r',encoding='utf-8') as f:
                 texts=f.readlines()
-            gr.Textbox(lines = len(texts),value="".join(texts), readonly=True)
+            gr.Textbox(label="text sample",lines = len(texts),value="".join(texts), readonly=True)
             with gr.Row() as audio_box:
                 audio_source = gr.Radio(
                     label="Audio source",
@@ -2268,7 +2295,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                     value="file",
                 )
                 input_audio_mic = gr.Audio(
-                    label="Input speech",
+                    label="Please press the record button and read all the text above",
                     type="filepath",
                     source="microphone",
                     visible=False,
@@ -2563,8 +2590,13 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
         app.queue(concurrency_count=511, max_size=1022).launch(share=True, quiet=True)
     else:
         app.queue(concurrency_count=511, max_size=1022).launch(
-            server_name="0.0.0.0",
+            server_name="localhost",
             inbrowser=not config.noautoopen,
             server_port=config.listen_port,
             quiet=True,
         )
+        # app.queue(concurrency_count=5, max_size=1022).launch(
+        #     server_name="61.28.227.111",
+        #     enable_queue=True,
+        #     share=True
+        # )

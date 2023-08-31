@@ -79,4 +79,5 @@ def check_silence(audio, len_orginal_audio = 120000):
 if __name__ == "__main__":
     # split_vocal()
     # print(os.environ.get('CONDA_DEFAULT_ENV'))
-    check_silence("dataset/dang1.mp3")
+    # check_silence("dataset/dang1.mp3")
+    split_vocal_from_folder("audio_train")
