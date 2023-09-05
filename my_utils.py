@@ -77,8 +77,8 @@ def check_silence(audio, len_orginal_audio = 120000):
     result_audio.export("remove_silent/%s" % fileName, format="wav")
     return "Success! new file at remove_silent/%s" % fileName
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # split_vocal()
     # print(os.environ.get('CONDA_DEFAULT_ENV'))
     # check_silence("dataset/dang1.mp3")
-    split_vocal_from_folder("audio_train")
+    # split_vocal_from_folder("audio_train")
