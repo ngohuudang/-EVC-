@@ -172,12 +172,15 @@ def vc_single(
         p.wait()
         input_audio_path = "clip.wav"
         # input_audio_path = "somegirl.mp3"
+        full_audio_path = root_location + '/' + input_audio_path
+    else:
+        full_audio_path = input_audio_path[0].name
 
     if input_audio_path is None:
         gr.Warning("You need to provide the path to an audio file")
         return "You need to provide the path to an audio file", None
     # full_audio_path = root_location + '/' + input_audio_path
-    full_audio_path = input_audio_path[0].name
+    # full_audio_path = input_audio_path[0].name
 
     if not os.path.exists(full_audio_path):
         gr.Warning(f"Could not find that file in audios/{input_audio_path}")
