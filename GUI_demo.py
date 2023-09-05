@@ -2126,9 +2126,9 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                     easy_uploader = gr.Files(label='Drop your audio here & hit the Reload button.',file_types=['audio'])
                     input_text_demo = gr.Textbox(label="Input text", interactive=True, visible=False)
                     
-                info1 = gr.Textbox(label="Status upload audio:", value="")
+                info1 = gr.Textbox(label="Status upload audio:", value="",visible=False)
                 # easy_uploader.upload(fn=upload_to_dataset, inputs=[easy_uploader], outputs=[info1])
-                
+                vc_output2 = gr.Audio(label="Output Audio (Click on the Three Dots in the Right Corner to Download)",type='filepath')
             source_file.change(
                 fn=update_source_ui,
                 inputs=source_file,
@@ -2205,7 +2205,7 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                             value=0.66,
                             interactive=True,
                             )
-                    vc_output2 = gr.Audio(label="Output Audio (Click on the Three Dots in the Right Corner to Download)",type='filepath')
+                    # vc_output2 = gr.Audio(label="Output Audio (Click on the Three Dots in the Right Corner to Download)",type='filepath')
                     animate_button.click(fn=mouth, inputs=[size, face, vc_output2, faces], outputs=[animation, preview])
                     with gr.Accordion("Advanced Settings", open=False, visible=False):
                         f0method0 = gr.Radio(
