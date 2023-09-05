@@ -40,7 +40,8 @@ def split_vocal_from_file(file, sr = 44100):
         device=device
     )
     ts = estimates['vocals'].detach().cpu()[0].T
-    stempeg.write_audio('processed_dataset/'+file,np.array(ts), sample_rate = sr)
+    filename = file.replace("\\", "/").split('/')[-1]
+    stempeg.write_audio('processed_dataset/'+filename,np.array(ts), sample_rate = sr)
 
 def split_vocal_from_folder(folder_input ="dataset",  sr = 44100):
     files_train = glob.glob("{folder_input}/*".format(folder_input=folder_input))
