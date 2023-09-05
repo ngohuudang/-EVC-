@@ -167,7 +167,7 @@ def vc_single(
         print(cmd)
         p = Popen(cmd, shell=True)
         p.wait()
-        # input_audio_path = "clip.wav"
+        input_audio_path = "clip.wav"
         # input_audio_path = "somegirl.mp3"
 
     if input_audio_path is None:
