@@ -155,20 +155,20 @@ def vc_single(
 ):  # spk_item, input_audio0, vc_transform0,f0_file,f0method0
     global tgt_sr, net_g, vc, hubert_model, version
     if source_file == "text":
-        # S=TTSnorm(input_text_demo)
-        # if is_conda:
-        #     pass
-        # else:
-        #     cmd = (
-        #     config.python_cmd
-        #     + " -m vietTTS.vietTTS.synthesizer --lexicon-file assets/infore/lexicon.txt --text=%s --output=%s --silence-duration %f"
-        #     % (S, "clip.wav", 0.1)
-        # )
-        # print(cmd)
-        # p = Popen(cmd, shell=True)
-        # p.wait()
+        S=TTSnorm(input_text_demo)
+        if is_conda:
+            pass
+        else:
+            cmd = (
+            config.python_cmd
+            + " -m vietTTS.vietTTS.synthesizer --lexicon-file assets/infore/lexicon.txt --text=%s --output=%s --silence-duration %f"
+            % (S, root_location + "/clip.wav", 0.1)
+        )
+        print(cmd)
+        p = Popen(cmd, shell=True)
+        p.wait()
         # input_audio_path = "clip.wav"
-        input_audio_path = "someguy.mp3"
+        # input_audio_path = "somegirl.mp3"
 
     if input_audio_path is None:
         gr.Warning("You need to provide the path to an audio file")
@@ -2050,6 +2050,14 @@ def train_model (audio_source, ease_upload, input_audio_mic, exp_dir):
     gr.Info('Done! Training successfully.')
     return 'Done! Training successfully.'
 
+def update_voice_convert(up_key):
+    if up_key == "male":
+        return gr.update(value=-12)
+    return gr.update(value=0)
+
+
+
+
 with gr.Blocks(theme=gr.themes.Base()) as app:
     with gr.Tabs():
         with gr.TabItem("Inference"):
@@ -2066,15 +2074,26 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         
                 with gr.Column():
                     with gr.Row():
-                        # vc_transform0 = gr.Number(label="Optional: You can change the pitch here or leave it at 0.", value=0)
-                        vc_transform0 = gr.Slider(
-                            minimum=-12,
-                            maximum=12,
-                            step=1,
-                            label=i18n("Voice tune adjustment(-12: convert female to male, 12: convert male to female)"),
-                            value=0,
-                            interactive=True,
+                        vc_transform0 = gr.Number(label="Optional: You can change the pitch here or leave it at 0.", value=0, visible= False)
+                        # vc_transform0 = gr.Slider(
+                        #     minimum=-12,
+                        #     maximum=12,
+                        #     step=1,
+                        #     label=i18n("Voice tune adjustment(-12: convert female to male, 12: convert male to female)"),
+                        #     value=0,
+                        #     interactive=True,
+                        # )
+                        up_key = gr.Radio(
+                            label="Voice",
+                            choices=["male", "female"],
+                            value="female",
                         )
+                        up_key.change(
+                            fn=update_voice_convert,
+                            inputs=[up_key],
+                            outputs=[vc_transform0],
+                        )
+
                         spk_item = gr.Slider(
                             minimum=0,
                             maximum=2333,
@@ -2128,11 +2147,13 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         input_audio0 = gr.Dropdown(
                             label="2.Choose your audio.",
                             value="someguy.mp3",
-                            choices=audio_files
+                            choices=audio_files,
+                            visible=False,
+                    
                             )
                         easy_uploader.upload(fn=save_to_wav2, inputs=[easy_uploader], outputs=[input_audio0])
                         easy_uploader.upload(fn=change_choices2, inputs=[], outputs=[input_audio0])
-                        refresh_button2 = gr.Button("Refresh", variant="primary", size='sm')
+                        refresh_button2 = gr.Button("Refresh", variant="primary", size='sm', visible=False)
                         input_audio_mic.change(fn=save_to_wav, inputs=[input_audio_mic], outputs=[input_audio0])
                         input_audio_mic.change(fn=change_choices2, inputs=[], outputs=[input_audio0])
                     with gr.Row():
@@ -2238,29 +2259,29 @@ with gr.Blocks(theme=gr.themes.Base()) as app:
                         fast_result = gr.Audio(label="Result",type="filepath", autoplay=True)
                         
             with gr.Row():
-                vc_output1 = gr.Textbox(label="Output Information:")
+                vc_output1 = gr.Textbox(label="Output Information:", visible=False)
                 f0_file = gr.File(label=i18n("F0曲线文件, 可选, 一行一个音高, 代替默认F0及升降调"), visible=False)
-                fast_audio.stop_recording(
-                    fn=fast,
-                    inputs=[
-                        fast_audio,
-                        spk_item,
-                        vc_transform0,
-                        f0method0,
-                        file_index1,
-                        index_rate1,
-                        filter_radius0,
-                        resample_sr0,
-                        rms_mix_rate0,
-                        protect0,
-                        crepe_hop_length
-                        ],
-                    outputs=[
-                        fast_result,
-                        fast_audio, 
-                        vc_output1
-                        ]
-                    )
+                # fast_audio.stop_recording(
+                #     fn=fast,
+                #     inputs=[
+                #         fast_audio,
+                #         spk_item,
+                #         vc_transform0,
+                #         f0method0,
+                #         file_index1,
+                #         index_rate1,
+                #         filter_radius0,
+                #         resample_sr0,
+                #         rms_mix_rate0,
+                #         protect0,
+                #         crepe_hop_length
+                #         ],
+                #     outputs=[
+                #         fast_result,
+                #         fast_audio, 
+                #         vc_output1
+                #         ]
+                #     )
                 but0.click(
                     vc_single,
                     [
