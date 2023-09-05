@@ -1389,7 +1389,7 @@ def train_model (audio_source, ease_upload, input_audio_mic, exp_dir):
     n_process = 4
     save_epoch = 10
     total_epoch = 30
-    batch_size = 4
+    batch_size = 8
     if os.path.exists("processed_dataset"):
         shutil.rmtree('processed_dataset')
         os.makedirs("processed_dataset")
