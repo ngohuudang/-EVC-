@@ -24,6 +24,7 @@ warnings.filterwarnings("ignore")
 torch.manual_seed(114514)
 from i18n import I18nAuto
 import ffmpeg
+import gc
 #from MDXNet import MDXNetDereverb
 
 i18n = I18nAuto()
@@ -381,6 +382,7 @@ def uvr(model_name, inp_root, save_root_vocal, paths, save_root_ins, agg, format
         print("clean_empty_cache")
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+            gc.collect()
     yield "\n".join(infos)
 
 # 一个选项卡全局只能有一个音色
@@ -394,6 +396,7 @@ def get_vc(sid):
             hubert_model = net_g = n_spk = vc = hubert_model = tgt_sr = None
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+                gc.collect()
             ###楼下不这么折腾清理不干净
             if_f0 = cpt.get("f0", 1)
             version = cpt.get("version", "v1")
@@ -414,6 +417,7 @@ def get_vc(sid):
             del net_g, cpt
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+                gc.collect()
             cpt = None
         return {"visible": False, "__type__": "update"}
     person = "%s/%s" % (weight_root, sid) #weight path
