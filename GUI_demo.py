@@ -27,6 +27,7 @@ from i18n import I18nAuto
 import ffmpeg
 from vinorm import TTSnorm
 from pydub import AudioSegment
+import gc
 i18n = I18nAuto()
 
 ngpu = torch.cuda.device_count()
@@ -415,6 +416,7 @@ def uvr(model_name, inp_root, save_root_vocal, paths, save_root_ins, agg, format
         print("clean_empty_cache")
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+            gc.collect()
     yield "\n".join(infos)
 
 # 一个选项卡全局只能有一个音色
@@ -428,6 +430,7 @@ def get_vc(sid):
             hubert_model = net_g = n_spk = vc = hubert_model = tgt_sr = None
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+                gc.collect()
             ###楼下不这么折腾清理不干净
             if_f0 = cpt.get("f0", 1)
             version = cpt.get("version", "v1")
@@ -448,6 +451,7 @@ def get_vc(sid):
             del net_g, cpt
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+                gc.collect()
             cpt = None
         return {"visible": False, "__type__": "update"}
     person = "%s/%s" % (weight_root, sid) #weight path
@@ -1384,11 +1388,11 @@ def train(
         p = Popen(cmd, shell=True, cwd=now_dir)
         p.wait()
 
-def train_model (audio_source, ease_upload, input_audio_mic, exp_dir):
+def train_model(audio_source, ease_upload, input_audio_mic, exp_dir):
     n_process = 4
     save_epoch = 10
     total_epoch = 30
-    batch_size = 8
+    batch_size = 4
     if os.path.exists("processed_dataset"):
         shutil.rmtree('processed_dataset')
         os.makedirs("processed_dataset")
@@ -1396,7 +1400,9 @@ def train_model (audio_source, ease_upload, input_audio_mic, exp_dir):
         split_vocal_from_file(ease_upload[0].name)
     else:
         split_vocal_from_file(input_audio_mic)
-
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        gc.collect()
     preprocess_dataset(
         trainset_dir="processed_dataset",
         exp_dir=exp_dir,
